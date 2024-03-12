@@ -40,22 +40,4 @@ router.get('/api/models/:urn/status', async function (req, res, next) {
     }
 });
 
-router.post('/api/models', formidable({ maxFileSize: Infinity }), async function (req, res, next) {
-    const file = req.files['model-file'];
-    if (!file) {
-        res.status(400).send('The required field ("model-file") is missing.');
-        return;
-    }
-    try {
-        const obj = await uploadObject(file.name, file.path);
-        await translateObject(urnify(obj.objectId), req.fields['model-zip-entrypoint']);
-        res.json({
-            name: obj.objectKey,
-            urn: urnify(obj.objectId)
-        });
-    } catch (err) {
-        next(err);
-    }
-});
-
 module.exports = router;

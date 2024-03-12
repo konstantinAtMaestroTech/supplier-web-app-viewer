@@ -1,64 +1,54 @@
+const localhost = `http://localhost:8080`;
+const socket = io(localhost);
 import { initViewer, loadModel } from './viewer.js';
 
-initViewer(document.getElementById('preview')).then(viewer => {
+const viewerPromise = initViewer(document.getElementById('preview')).then(async viewer => {
     const urn = window.location.hash?.substring(1);
-    setupModelSelection(viewer, urn);
-    setupModelUpload(viewer);
+    await setupModelSelection(viewer);
+    return viewer;
 });
 
-async function setupModelSelection(viewer, selectedUrn) {
-    const dropdown = document.getElementById('models');
-    dropdown.innerHTML = '';
+socket.on('assemblyID event', function (data) {
+    console.log('Event emitter data :', data);
+    selectAssemblyID(viewerPromise, data);
+});
+
+async function selectAssemblyID(viewerPromise, data) {
+    viewerPromise.then(async viewer => {
+        let idDict = await new Promise(resolve => {
+            viewer.model.getExternalIdMapping(data => resolve(data));
+        }); 
+        console.log('ID Dict from main.js:', idDict);
+        console.log('data from main.js:', data);
+        let assemblyIDs = [] 
+        data.UniqueIDsArray.forEach(id => {
+            console.log('id:', id);
+            let dbId = idDict[id];
+            assemblyIDs.push(dbId);
+        });
+        viewer.select(assemblyIDs);
+    });
+}
+
+async function setupModelSelection(viewer) {
     try {
         const resp = await fetch('/api/models');
         if (!resp.ok) {
             throw new Error(await resp.text());
         }
         const models = await resp.json();
-        dropdown.innerHTML = models.map(model => `<option value=${model.urn} ${model.urn === selectedUrn ? 'selected' : ''}>${model.name}</option>`).join('\n');
-        dropdown.onchange = () => onModelSelected(viewer, dropdown.value);
-        if (dropdown.value) {
-            onModelSelected(viewer, dropdown.value);
+        let nameToFind = "test.rvt"; // hard coded for now
+        let foundModel = models.find(model => model.name === nameToFind);
+        console.log(models);
+        /* dropdown.innerHTML = models.map(model => `<option value=${model.urn} ${model.urn === selectedUrn ? 'selected' : ''}>${model.name}</option>`).join('\n');
+        dropdown.onchange = () => onModelSelected(viewer, dropdown.value); */
+        if (foundModel) {
+            onModelSelected(viewer, foundModel.urn);
         }
     } catch (err) {
         alert('Could not list models. See the console for more details.');
         console.error(err);
     }
-}
-
-async function setupModelUpload(viewer) {
-    const upload = document.getElementById('upload');
-    const input = document.getElementById('input');
-    const models = document.getElementById('models');
-    upload.onclick = () => input.click();
-    input.onchange = async () => {
-        const file = input.files[0];
-        let data = new FormData();
-        data.append('model-file', file);
-        if (file.name.endsWith('.zip')) { // When uploading a zip file, ask for the main design file in the archive
-            const entrypoint = window.prompt('Please enter the filename of the main design inside the archive.');
-            data.append('model-zip-entrypoint', entrypoint);
-        }
-        upload.setAttribute('disabled', 'true');
-        models.setAttribute('disabled', 'true');
-        showNotification(`Uploading model <em>${file.name}</em>. Do not reload the page.`);
-        try {
-            const resp = await fetch('/api/models', { method: 'POST', body: data });
-            if (!resp.ok) {
-                throw new Error(await resp.text());
-            }
-            const model = await resp.json();
-            setupModelSelection(viewer, model.urn);
-        } catch (err) {
-            alert(`Could not upload model ${file.name}. See the console for more details.`);
-            console.error(err);
-        } finally {
-            clearNotification();
-            upload.removeAttribute('disabled');
-            models.removeAttribute('disabled');
-            input.value = '';
-        }
-    };
 }
 
 async function onModelSelected(viewer, urn) {
@@ -106,3 +96,5 @@ function clearNotification() {
     overlay.innerHTML = '';
     overlay.style.display = 'none';
 }
+
+export {viewerPromise};

@@ -45,23 +45,6 @@ service.listObjects = async () => {
     return objects;
 };
 
-service.uploadObject = async (objectName, filePath) => {
-    await service.ensureBucketExists(APS_BUCKET);
-    const buffer = await fs.promises.readFile(filePath);
-    const results = await new APS.ObjectsApi().uploadResources(
-        APS_BUCKET,
-        [{ objectKey: objectName, data: buffer }],
-        { useAcceleration: false, minutesExpiration: 15 },
-        null,
-        await service.getInternalToken()
-    );
-    if (results[0].error) {
-        throw results[0].completed;
-    } else {
-        return results[0].completed;
-    }
-};
-
 service.translateObject = async (urn, rootFilename) => {
     const job = {
         input: { urn },

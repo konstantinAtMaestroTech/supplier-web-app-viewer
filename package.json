@@ -10,10 +10,13 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
-    "forge-apis": "^0.9.1"
+    "forge-apis": "^0.9.1",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "@types/forge-viewer": "^7.48.0"
