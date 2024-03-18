@@ -6,7 +6,7 @@ const { PORT } = require('./config.js');
 
 let app = express();
 app.use(cors({
-    origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001'],
+    origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105'],
     credentials: true,
 }));
 app.use(express.json());
