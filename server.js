@@ -13,7 +13,13 @@ app.use(express.json());
 app.use(express.static('wwwroot'));
 
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+      origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001'],
+      methods: ["GET", "POST"],
+      credentials: true
+    }
+});  
 
 app.use(require('./routes/auth.js'));
 app.use(require('./routes/models.js'));
