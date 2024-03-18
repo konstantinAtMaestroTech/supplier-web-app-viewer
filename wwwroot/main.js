@@ -4,7 +4,11 @@ import { initViewer, loadModel } from './viewer.js';
 
 const viewerPromise = initViewer(document.getElementById('preview')).then(async viewer => {
     const urn = window.location.hash?.substring(1);
+    const params = new URLSearchParams(window.location.search);
+    const paramValue = params.get('param');
     await setupModelSelection(viewer);
+    console.log("Model from Init", viewer.model)
+    if (paramValue) {await QRIDs(viewer, paramValue)}
     return viewer;
 });
 
@@ -15,6 +19,8 @@ socket.on('assemblyID event', function (data) {
 
 async function selectAssemblyID(viewerPromise, data) {
     viewerPromise.then(async viewer => {
+        console.log("Model from selectAssemblyID", viewer.model)
+        console.log("Viewer from selectAssemblyID", viewer)
         let idDict = await new Promise(resolve => {
             viewer.model.getExternalIdMapping(data => resolve(data));
         }); 
@@ -28,6 +34,28 @@ async function selectAssemblyID(viewerPromise, data) {
         });
         viewer.select(assemblyIDs);
     });
+}
+async function QRIDs(viewer, data) {
+    while (!viewer.model) {
+        // Wait for 100ms before checking again
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    let idDict = await new Promise(resolve => {
+        viewer.model.getExternalIdMapping(data => resolve(data));
+    }); 
+    console.log('ID Dict from main.js:', idDict);
+    console.log('data from main.js:', data);
+    let assemblyIDs = []
+    if (data.split('_')) {
+        data.split('_').forEach(id => {
+            console.log('id:', id);
+            let dbId = idDict[id];
+            assemblyIDs.push(dbId);
+        });
+    } else {
+        assemblyIDs.push(idDict[data])
+    }
+    viewer.select(assemblyIDs);
 }
 
 async function setupModelSelection(viewer) {
