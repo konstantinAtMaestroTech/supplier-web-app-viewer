@@ -15,7 +15,7 @@ app.use(express.static('wwwroot'));
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-      origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001'],
+      origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001', 'http://13.53.130.105'],
       methods: ["GET", "POST"],
       credentials: true
     }
