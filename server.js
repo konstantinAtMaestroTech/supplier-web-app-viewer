@@ -5,7 +5,10 @@ const cors = require('cors');
 const { PORT } = require('./config.js');
 
 let app = express();
-app.use(cors());
+app.use(cors({
+    origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001'],
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.static('wwwroot'));
 
