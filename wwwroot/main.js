@@ -1,4 +1,4 @@
-const localhost = `http://localhost:8080`;
+const localhost = `http://13.53.130.105:8080`;
 const socket = io(localhost);
 import { initViewer, loadModel } from './viewer.js';
 
