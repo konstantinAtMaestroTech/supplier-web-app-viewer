@@ -4,6 +4,8 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const { PORT } = require('./config.js');
 
+app.options('*', cors()) // I am not sure whether it is safe
+
 let app = express();
 app.use(cors({
     origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105', 'http://localhost:4000', 'https://supplier-web-app.maestrotest.info'], //temporary localhost for the mobile version test
