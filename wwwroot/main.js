@@ -1,4 +1,4 @@
-const localhost = `http://13.53.130.105:8080`;
+const localhost = `https://viewer-web-app.maestrotest.info`; // changed for the sake of test 
 const socket = io(localhost);
 import { initViewer, loadModel } from './viewer.js';
 
@@ -7,7 +7,6 @@ const viewerPromise = initViewer(document.getElementById('preview')).then(async 
     const params = new URLSearchParams(window.location.search);
     const paramValue = params.get('param');
     await setupModelSelection(viewer);
-    console.log("Model from Init", viewer.model)
     if (paramValue) {await QRIDs(viewer, paramValue)}
     return viewer;
 });
