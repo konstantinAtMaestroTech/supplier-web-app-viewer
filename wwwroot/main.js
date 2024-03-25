@@ -1,11 +1,30 @@
-const localhost = `https://viewer-web-app.maestrotest.info`; // changed for the sake of test 
+const localhost = `https://viewer-web-app.maestrotest.info`;
 const socket = io(localhost);
 import { initViewer, loadModel } from './viewer.js';
+
+function afterViewerEvents(viewer, events) {
+    let promises = [];
+    events.forEach(function (event) {
+        promises.push(new Promise(function (resolve, reject) {
+            let handler = function () {
+                viewer.removeEventListener(event, handler);
+                console.log(`Removed event listener for ${event}`)
+                resolve();
+            }
+            viewer.addEventListener(event, handler);
+            console.log(`Added event listener for ${event}`)
+        }));
+    });
+
+    return Promise.all(promises)
+}
 
 const viewerPromise = initViewer(document.getElementById('preview')).then(async viewer => {
     const urn = window.location.hash?.substring(1);
     const params = new URLSearchParams(window.location.search);
+    console.log('Params on init viewer', params)
     const paramValue = params.get('param');
+    console.log('Param on the viewer initialization: ', paramValue);
     await setupModelSelection(viewer);
     if (paramValue) {await QRIDs(viewer, paramValue)}
     return viewer;
@@ -18,6 +37,10 @@ socket.on('assemblyID event', function (data) {
 
 async function selectAssemblyID(viewerPromise, data) {
     viewerPromise.then(async viewer => {
+        await afterViewerEvents(viewer, [
+            Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+            Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
+        ]);
         console.log("Model from selectAssemblyID", viewer.model)
         console.log("Viewer from selectAssemblyID", viewer)
         let idDict = await new Promise(resolve => {
@@ -35,26 +58,19 @@ async function selectAssemblyID(viewerPromise, data) {
     });
 }
 async function QRIDs(viewer, data) {
-    while (!viewer.model) {
-        // Wait for 100ms before checking again
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    let idDict = await new Promise(resolve => {
-        viewer.model.getExternalIdMapping(data => resolve(data));
-    }); 
-    console.log('ID Dict from main.js:', idDict);
-    console.log('data from main.js:', data);
-    let assemblyIDs = []
-    if (data.split('_')) {
-        data.split('_').forEach(id => {
-            console.log('id:', id);
-            let dbId = idDict[id];
-            assemblyIDs.push(dbId);
+    try {
+        await afterViewerEvents(viewer, [
+            Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+            Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
+        ]);
+        viewer.search(data, function(dbIDs) {
+            viewer.select(dbIDs);
+            viewer.fitToView(dbIDs);
+            console.log(dbIDs);
         });
-    } else {
-        assemblyIDs.push(idDict[data])
+    } catch (err) {
+        console.error(err);
     }
-    viewer.select(assemblyIDs);
 }
 
 async function setupModelSelection(viewer) {
