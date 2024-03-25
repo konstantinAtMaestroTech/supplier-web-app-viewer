@@ -37,10 +37,13 @@ socket.on('assemblyID event', function (data) {
 
 async function selectAssemblyID(viewerPromise, data) {
     viewerPromise.then(async viewer => {
-        await afterViewerEvents(viewer, [
-            Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
-            Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
-        ]);
+        if (viewer.isObjectTreeCreated()){
+        } else {
+            await afterViewerEvents(viewer, [
+                Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+                Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
+            ]);
+        }
         console.log("Model from selectAssemblyID", viewer.model)
         console.log("Viewer from selectAssemblyID", viewer)
         let idDict = await new Promise(resolve => {
@@ -59,10 +62,13 @@ async function selectAssemblyID(viewerPromise, data) {
 }
 async function QRIDs(viewer, data) {
     try {
-        await afterViewerEvents(viewer, [
-            Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
-            Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
-        ]);
+        if (viewer.isObjectTreeCreated()){
+        } else {
+            await afterViewerEvents(viewer, [
+                Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+                Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
+            ]);
+        }
         viewer.search(data, function(dbIDs) {
             viewer.select(dbIDs);
             viewer.fitToView(dbIDs);
