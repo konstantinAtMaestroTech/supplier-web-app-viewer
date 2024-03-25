@@ -6,7 +6,8 @@ module.exports = function(io) {
         try {
             // Emit an event to the client
             io.emit('assemblyID event', req.body );
-            console.log('The AssemblyID request has been recieved')
+            console.log('The AssemblyID request has been recieved');
+            res.setHeader('Access-Control-Allow-Origin', '*');
             res.status(200).send('OK');
         } catch (err) {
             next(err);
