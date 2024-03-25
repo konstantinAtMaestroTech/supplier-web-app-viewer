@@ -37,7 +37,7 @@ socket.on('assemblyID event', function (data) {
 
 async function selectAssemblyID(viewerPromise, data) {
     viewerPromise.then(async viewer => {
-        if (viewer.isObjectTreeCreated()){
+        if (viewer.model.isObjectTreeCreated()){
         } else {
             await afterViewerEvents(viewer, [
                 Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
@@ -62,7 +62,7 @@ async function selectAssemblyID(viewerPromise, data) {
 }
 async function QRIDs(viewer, data) {
     try {
-        if (viewer.isObjectTreeCreated()){
+        if (viewer.model.isObjectTreeCreated()){
         } else {
             await afterViewerEvents(viewer, [
                 Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
