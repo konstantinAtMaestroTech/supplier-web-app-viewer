@@ -35,7 +35,7 @@ socket.on('assemblyID event', function (data) {
     selectAssemblyID(viewerPromise, data);
 });
 
-async function selectAssemblyID(viewerPromise, data) {
+async function selectAssemblyID(viewerPromise, data) { // This all can be redone with viewer.search() method to decrease complexity
     viewerPromise.then(async viewer => {
         if (viewer.model.isObjectTreeCreated()){
         } else {
@@ -58,6 +58,7 @@ async function selectAssemblyID(viewerPromise, data) {
             assemblyIDs.push(dbId);
         });
         viewer.select(assemblyIDs);
+        viewer.fitToView(assemblyIDs);
     });
 }
 async function QRIDs(viewer, data) {
