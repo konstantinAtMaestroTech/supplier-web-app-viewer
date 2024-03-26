@@ -7,12 +7,12 @@ const { PORT } = require('./config.js');
 
 let app = express();
 app.options('*', cors({
-  origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105', 'http://localhost:4000', 'https://supplier-web-app.maestrotest.info', 'http://localhost:3000'],
+  origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105', 'http://localhost:4000', 'https://supplier-web-app.maestrotest.info', 'http://localhost:3000', 'https://assembly-web-app.maestrotest.info/'],
   credentials: true
 }));
 // I am not sure whether it is safe app.options('*', cors()) 
 app.use(cors({
-    origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105', 'http://localhost:4000', 'https://supplier-web-app.maestrotest.info', 'http://localhost:3000'], //temporary localhost for the mobile version test
+    origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001','http://13.53.130.105', 'http://localhost:4000', 'https://supplier-web-app.maestrotest.info', 'http://localhost:3000', 'https://assembly-web-app.maestrotest.info/'], //temporary localhost for the mobile version test
     credentials: true,
     optionsSuccessStatus: 200,
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -24,7 +24,7 @@ app.use(express.static('wwwroot'));
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-      origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001', 'http://13.53.130.105', 'http://localhost:4000',  'https://supplier-web-app.maestrotest.info', 'http://localhost:3000'], //temporary localhost for the mobile version test
+      origin: ['http://13.53.130.105:3000', 'http://13.53.130.105:3001', 'http://13.53.130.105', 'http://localhost:4000',  'https://supplier-web-app.maestrotest.info', 'http://localhost:3000', 'https://assembly-web-app.maestrotest.info/'], //temporary localhost for the mobile version test
       methods: ["GET", "POST"],
       credentials: true,
       optionsSuccessStatus: 200,
