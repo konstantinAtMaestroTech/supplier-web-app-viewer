@@ -62,13 +62,25 @@ async function selectAssemblyID(viewerPromise, data) {
 }
 async function QRIDs(viewer, data) {
     try {
+        await new Promise((resolve) => { // here we wait for the model to be loaded
+            if (viewer.model) {
+                resolve();
+            } else {
+                viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function handler() {
+                    viewer.removeEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, handler);
+                    resolve();
+                });
+            }
+        });
+
         if (viewer.model.isObjectTreeCreated()){
+            // Do nothing
         } else {
             await afterViewerEvents(viewer, [
-                Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
-                Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT
+                Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT // here we wait for the object tree to be created
             ]);
         }
+
         viewer.search(data, function(dbIDs) {
             viewer.select(dbIDs);
             viewer.fitToView(dbIDs);
